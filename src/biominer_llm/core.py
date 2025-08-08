@@ -51,7 +51,19 @@ def init_llm(
     else:
         raise ValueError("config must be an LLMConfig object.")
 
-    if provider == "openai":
+    if base_url:
+        from langchain_openai import ChatOpenAI
+
+        llm = ChatOpenAI(
+            model=llm_model,
+            temperature=temperature,
+            max_completion_tokens=max_tokens,
+            api_key=api_key,
+            base_url=base_url,
+            verbose=True,
+            **(extra_config or {}),
+        )
+    elif provider == "openai":
         from langchain_openai import ChatOpenAI
 
         llm = ChatOpenAI(
@@ -97,18 +109,6 @@ def init_llm(
             model=llm_model,
             temperature=temperature,
             max_tokens=max_tokens,
-            verbose=True,
-            **(extra_config or {}),
-        )
-    elif base_url:
-        from langchain_openai import ChatOpenAI
-
-        llm = ChatOpenAI(
-            model=llm_model,
-            temperature=temperature,
-            max_completion_tokens=max_tokens,
-            api_key=api_key,
-            base_url=base_url,
             verbose=True,
             **(extra_config or {}),
         )
