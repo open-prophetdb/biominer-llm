@@ -7,20 +7,14 @@ logger = logging.getLogger(__name__)
 
 
 def init_llm(
-    config: Optional[LLMConfig] = None, extra_config: Optional[Dict[str, Any]] = None
+    config: LLMConfig = LLMConfig(), extra_config: Optional[Dict[str, Any]] = None
 ):
     """
     Initialize a Large Language Model instance based on the specified provider.
 
     Args:
-        provider (str): The LLM provider to use. Supported values are:
-            "openai", "anthropic", "ollama", "xai", "gemini". Defaults to "openai".
-        llm_model (str): The specific model name to use. Defaults to "gpt-4o".
-        temperature (float): Controls randomness in the model's output (0.0 to 1.0).
-            Lower values make output more deterministic. Defaults to 0.7.
-        max_tokens (int): Maximum number of tokens to generate. Defaults to 4096.
-        extra_config (Optional[Dict[str, Any]]): Additional configuration parameters
-            specific to the provider. Defaults to None.
+        config: LLMConfig object containing provider, model, temperature, max_tokens, api_key, and base_url.
+        extra_config: Additional configuration parameters specific to the provider.
 
     Returns:
         An initialized LLM instance from the specified provider.
