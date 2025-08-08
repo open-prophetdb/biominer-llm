@@ -25,6 +25,9 @@ class LLMConfig(BaseSettings):
                 raise ValueError(
                     f"Unsupported provider: {data.get('provider', None)} or set base_url"
                 )
+        else:
+            if data.get("provider", None) in allowed_providers:
+                data["provider"] = "custom"
 
         if (
             data.get("api_key") is None
