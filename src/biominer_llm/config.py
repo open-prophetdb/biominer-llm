@@ -20,6 +20,8 @@ class LLMConfig(BaseSettings):
     @model_validator(mode="before")
     def adjust_llm_config(cls, data: dict):
         allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
+        provider = data.get("provider", None)
+        api_key = data.get("api_key", None)
         if data.get("base_url", None) is None:
             if data.get("provider", None) not in allowed_providers:
                 raise ValueError(
@@ -28,19 +30,19 @@ class LLMConfig(BaseSettings):
         else:
             if data.get("provider", None) in allowed_providers:
                 data["provider"] = "custom"
+                provider = "custom"
 
-        if (
-            data.get("api_key") is None
-            and data.get("provider", None) in allowed_providers
-        ):
-            if data.get(f"{data['provider']}_api_key") is None:
-                raise ValueError("Please set api_key")
+        if api_key is None and provider in allowed_providers:
+            if data.get(f"{provider}_api_key") is not None:
+                data["api_key"] = data.get(f"{provider}_api_key")
+            elif os.environ[f"{provider.upper()}_API_KEY"] is not None:
+                data["api_key"] = data.get(f"{provider.upper()}_API_KEY")
             else:
-                data["api_key"] = data.get(f"{data['provider']}_api_key")
-        elif data.get("api_key") is None:
+                raise ValueError(f"Please set api_key for {provider}")
+        elif api_key is None:
             raise ValueError("Please set api_key")
-        elif data.get("api_key") is not None and data["provider"] in allowed_providers:
-            os.environ[f"{data['provider'].upper()}_API_KEY"] = data.get("api_key")
+        elif api_key is not None and data.get("provider", None) in allowed_providers:
+            os.environ[f"{provider.upper()}_API_KEY"] = api_key
 
         known = set(cls.model_fields.keys())
         data = {k: v for k, v in data.items() if k in known}
