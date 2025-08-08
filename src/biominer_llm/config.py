@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import model_validator
+from typing import Optional, Dict, Any
+from pydantic import model_validator, field_validator
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
@@ -14,7 +14,10 @@ class LLMConfig(BaseSettings):
     base_url: Optional[str] = None
 
     model_config = SettingsConfigDict(
-        env_prefix="BIOMINER_AI_LLM_", env_file=".env", env_nested_delimiter="__"
+        env_prefix="BIOMINER_AI_LLM_",
+        env_file=".env",
+        env_nested_delimiter="__",
+        extra="ignore",
     )
 
     @model_validator(mode="before")
@@ -47,3 +50,28 @@ class LLMConfig(BaseSettings):
         known = set(cls.model_fields.keys())
         data = {k: v for k, v in data.items() if k in known}
         return data
+
+    @field_validator("temperature")
+    @classmethod
+    def validate_temperature(cls, v):
+        if not 0.0 <= v <= 1.0:
+            raise ValueError("Temperature must be between 0.0 and 1.0")
+        return v
+
+    @field_validator("max_tokens")
+    @classmethod
+    def validate_max_tokens(cls, v):
+        if v <= 0:
+            raise ValueError("Max tokens must be greater than 0")
+        return v
+
+    @classmethod
+    def from_env(cls, env_prefix: str = "BIOMINER_AI_LLM_"):
+        return cls(**{k: v for k, v in os.environ.items() if k.startswith(env_prefix)})
+
+    def to_dict(self):
+        return self.model_dump()
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        return cls(**data)
