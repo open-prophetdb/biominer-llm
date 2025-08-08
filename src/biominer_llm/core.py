@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def init_llm(
-    config: LLMConfig = LLMConfig(), extra_config: Optional[Dict[str, Any]] = None
+    config: Optional[LLMConfig] = None, extra_config: Optional[Dict[str, Any]] = None
 ):
     """
     Initialize a Large Language Model instance based on the specified provider.
@@ -40,6 +40,8 @@ def init_llm(
     """
     logger.info(f"Initializing LLM with config: {config}, it's a {type(config)}")
     # Handle both LLMConfig object and string provider
+    if config is None:
+        config = LLMConfig()
     if isinstance(config, LLMConfig):
         # It's an LLMConfig object
         provider = config.provider
