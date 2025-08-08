@@ -14,29 +14,31 @@ class LLMConfig(BaseSettings):
     base_url: Optional[str] = None
 
     model_config = SettingsConfigDict(
-        env_prefix="BIOMINER_AI_LLM_",
-        env_file=".env",
-        env_nested_delimiter="__",
+        env_prefix="BIOMINER_AI_LLM_", env_file=".env", env_nested_delimiter="__"
     )
 
     @model_validator(mode="before")
-    def adjust_llm_config(self, data):
+    def adjust_llm_config(cls, data: dict):
         allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
-        if data["base_url"] is None:
-            if data["provider"] not in allowed_providers:
+        if data.get("base_url", None) is None:
+            if data.get("provider", None) not in allowed_providers:
                 raise ValueError(
-                    f"Unsupported provider: {data['provider']} or set base_url"
+                    f"Unsupported provider: {data.get('provider', None)} or set base_url"
                 )
 
-        from dotenv import dotenv_values
-
-        env = dotenv_values(".env")
-        if data["api_key"] is None and data["provider"] in allowed_providers:
-            if env.get(f"{data['provider'].upper()}_API_KEY") is None:
+        if (
+            data.get("api_key") is None
+            and data.get("provider", None) in allowed_providers
+        ):
+            if data.get(f"{data['provider']}_api_key") is None:
                 raise ValueError("Please set api_key")
             else:
-                data["api_key"] = env.get(f"{data['provider'].upper()}_API_KEY")
-        elif data["api_key"] is None:
+                data["api_key"] = data.get(f"{data['provider']}_api_key")
+        elif data.get("api_key") is None:
             raise ValueError("Please set api_key")
-        elif data["api_key"] is not None and data["provider"] in allowed_providers:
-            os.environ[f"{data['provider'].upper()}_API_KEY"] = data["api_key"]
+        elif data.get("api_key") is not None and data["provider"] in allowed_providers:
+            os.environ[f"{data['provider'].upper()}_API_KEY"] = data.get("api_key")
+
+        known = set(cls.model_fields.keys())
+        data = {k: v for k, v in data.items() if k in known}
+        return data
