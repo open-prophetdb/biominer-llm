@@ -48,7 +48,7 @@ def init_llm(
         llm_model = config.model
         temperature = config.temperature
         max_tokens = config.max_tokens
-        base_url = str(config.base_url)
+        base_url = str(config.base_url) if config.base_url else None
         api_key = config.api_key.get_secret_value()
     else:
         raise ValueError("config must be an LLMConfig object.")
