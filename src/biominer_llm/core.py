@@ -72,6 +72,7 @@ def init_llm(
             model=llm_model,
             temperature=temperature,
             max_completion_tokens=max_tokens,
+            api_key=api_key,
             verbose=True,
             **(extra_config or {}),
         )
@@ -82,6 +83,7 @@ def init_llm(
             model_name=llm_model,
             temperature=temperature,
             max_tokens_to_sample=max_tokens,
+            api_key=api_key,
             verbose=True,
             **(extra_config or {}),
         )
@@ -91,6 +93,7 @@ def init_llm(
         llm = ChatOllama(
             model=llm_model,
             temperature=temperature,
+            api_key=api_key,
             verbose=True,
             **(extra_config or {}),
         )
@@ -101,6 +104,7 @@ def init_llm(
             model=llm_model,
             temperature=temperature,
             max_tokens=max_tokens,
+            api_key=api_key,
             verbose=True,
             **(extra_config or {}),
         )
@@ -111,6 +115,7 @@ def init_llm(
             model=llm_model,
             temperature=temperature,
             max_tokens=max_tokens,
+            api_key=api_key,
             verbose=True,
             **(extra_config or {}),
         )
