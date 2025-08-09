@@ -26,10 +26,10 @@ class LLMConfig(BaseSettings):
     @model_validator(mode="before")
     def adjust_llm_config(cls, data: dict):
         allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
-        provider = data.get("provider", None)
+        provider = data.get("provider", "openai")
         api_key = data.get("api_key", None)
         if data.get("base_url", None) is None:
-            if data.get("provider", "openai") not in allowed_providers:
+            if provider not in allowed_providers:
                 raise ValueError(
                     f"Unsupported provider: {data.get('provider', None)} or set base_url"
                 )
@@ -39,6 +39,7 @@ class LLMConfig(BaseSettings):
                     "You specified a base_url, we guess you are using a custom provider, so we will set provider to custom."
                 )
                 data["provider"] = "custom"
+                provider = "custom"
 
         if api_key is None and provider in allowed_providers:
             if data.get(f"{provider}_api_key") is not None:
@@ -50,7 +51,7 @@ class LLMConfig(BaseSettings):
                 logger.warning(
                     f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it."
                 )
-                data["api_key"] = data.get(f"{provider.upper()}_API_KEY")
+                data["api_key"] = os.environ.get(f"{provider.upper()}_API_KEY", None)
             else:
                 raise ValueError(f"Please set api_key for {provider}")
         elif data.get("api_key", None) is None:
