@@ -35,21 +35,17 @@ class LLMConfig(BaseSettings):
                 )
         else:
             if provider in allowed_providers or provider is None:
-                logger.warning(
-                    "You specified a base_url, we guess you are using a custom provider, so we will set provider to custom."
-                )
+                logger.info("base_url is set, set provider to custom.")
                 data["provider"] = "custom"
                 provider = "custom"
 
         if api_key is None and provider in allowed_providers:
             if data.get(f"{provider}_api_key") is not None:
-                logger.warning(
-                    f"We didn't find api_key in the config, but we found {provider}_api_key in the config, so we will use it."
-                )
+                logger.info(f"Found {provider}_api_key in the .env config file")
                 data["api_key"] = data.get(f"{provider}_api_key")
             elif os.environ.get(f"{provider.upper()}_API_KEY", None) is not None:
-                logger.warning(
-                    f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it."
+                logger.info(
+                    f"Found {provider.upper()}_API_KEY in the environment variables"
                 )
                 data["api_key"] = os.environ.get(f"{provider.upper()}_API_KEY", None)
             else:
