@@ -41,7 +41,7 @@ messages = [
 ]
 config = LLMConfig(_env_file="biominer.env")
 
-llm = init_llm()
+llm = init_llm(config=config)
 llm.invoke(messages)
 ```
 
