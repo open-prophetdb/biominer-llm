@@ -11,7 +11,9 @@ pip install -e .
 ## usage    
 
 
-### load config from .env file
+### load config from configure file
+
+load from default .env file
 ```
 from biominer_llm import LLMConfig, init_llm
 messages = [
@@ -25,6 +27,24 @@ messages = [
 llm = init_llm()
 llm.invoke(messages)
 ```
+
+load from default custom .env file
+
+```
+from biominer_llm import LLMConfig, init_llm
+messages = [
+(
+    "system",
+    "You are a helpful translator. Translate the user sentence to Chinese.",
+),
+("human", "I love programming."),
+]
+config = LLMConfig(_env_file="biominer.env")
+
+llm = init_llm()
+llm.invoke(messages)
+```
+
 
 ### manually config 
 ```
