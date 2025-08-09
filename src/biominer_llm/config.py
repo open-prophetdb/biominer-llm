@@ -18,7 +18,7 @@ class LLMConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="BIOMINER_AI_LLM_",
-        env_file=".env",
+        env_file=os.getenv("BIOMINER_AI_ENV", ".env"),
         env_nested_delimiter="__",
         extra="ignore",
     )
