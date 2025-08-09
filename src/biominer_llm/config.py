@@ -46,7 +46,7 @@ class LLMConfig(BaseSettings):
                     f"We didn't find api_key in the config, but we found {provider}_api_key in the config, so we will use it."
                 )
                 data["api_key"] = data.get(f"{provider}_api_key")
-            elif os.environ[f"{provider.upper()}_API_KEY"] is not None:
+            elif os.environ.get(f"{provider.upper()}_API_KEY", None) is not None:
                 logger.warning(
                     f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it."
                 )
