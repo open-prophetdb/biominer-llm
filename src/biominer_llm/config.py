@@ -7,6 +7,7 @@ from pydantic import SecretStr
 
 logger = logging.getLogger(__name__)
 
+
 class LLMConfig(BaseSettings):
     provider: str = "openai"
     model: str = "gpt-4o"
@@ -28,29 +29,32 @@ class LLMConfig(BaseSettings):
         provider = data.get("provider", None)
         api_key = data.get("api_key", None)
         if data.get("base_url", None) is None:
-            if data.get("provider", None) not in allowed_providers:
+            if data.get("provider", "openai") not in allowed_providers:
                 raise ValueError(
                     f"Unsupported provider: {data.get('provider', None)} or set base_url"
                 )
         else:
-            if data.get("provider", None) in allowed_providers:
-                logger.warning(f"You specified a base_url, we guess you are using a custom provider, so we will set provider to custom.")
+            if provider in allowed_providers or provider is None:
+                logger.warning(
+                    "You specified a base_url, we guess you are using a custom provider, so we will set provider to custom."
+                )
                 data["provider"] = "custom"
-                provider = "custom"
 
         if api_key is None and provider in allowed_providers:
             if data.get(f"{provider}_api_key") is not None:
-                logger.warning(f"We didn't find api_key in the config, but we found {provider}_api_key in the config, so we will use it.")
+                logger.warning(
+                    f"We didn't find api_key in the config, but we found {provider}_api_key in the config, so we will use it."
+                )
                 data["api_key"] = data.get(f"{provider}_api_key")
             elif os.environ[f"{provider.upper()}_API_KEY"] is not None:
-                logger.warning(f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it.")
+                logger.warning(
+                    f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it."
+                )
                 data["api_key"] = data.get(f"{provider.upper()}_API_KEY")
             else:
                 raise ValueError(f"Please set api_key for {provider}")
-        elif api_key is None:
+        elif data.get("api_key", None) is None:
             raise ValueError("Please set api_key")
-        elif api_key is not None and data.get("provider", None) in allowed_providers:
-            os.environ[f"{provider.upper()}_API_KEY"] = api_key
 
         known = set(cls.model_fields.keys())
         data = {k: v for k, v in data.items() if k in known}
