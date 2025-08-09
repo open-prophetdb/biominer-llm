@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from pydantic import model_validator, field_validator
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr
+from pydantic import SecretStr, HttpUrl
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class LLMConfig(BaseSettings):
     temperature: Optional[float] = 0.7
     max_tokens: int = 4096
     api_key: Optional[SecretStr] = None
-    base_url: Optional[str] = None
+    base_url: Optional[HttpUrl] = None
 
     model_config = SettingsConfigDict(
         env_prefix="BIOMINER_AI_LLM_",

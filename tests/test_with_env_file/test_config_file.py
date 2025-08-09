@@ -50,4 +50,4 @@ def test_llmconfig_custom_provider(monkeypatch):
     assert config.temperature == 0.8
     assert config.max_tokens == 4096
     assert config.api_key.get_secret_value() == "dummy"
-    assert config.base_url == "http://localhost"
+    assert str(config.base_url) == "http://localhost/"
