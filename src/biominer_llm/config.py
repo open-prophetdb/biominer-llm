@@ -1,9 +1,11 @@
+import logging
 from typing import Optional, Dict, Any
 from pydantic import model_validator, field_validator
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
 
+logger = logging.getLogger(__name__)
 
 class LLMConfig(BaseSettings):
     provider: str = "openai"
@@ -25,7 +27,6 @@ class LLMConfig(BaseSettings):
         allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
         provider = data.get("provider", None)
         api_key = data.get("api_key", None)
-        
         if data.get("base_url", None) is None:
             if data.get("provider", None) not in allowed_providers:
                 raise ValueError(
@@ -33,44 +34,23 @@ class LLMConfig(BaseSettings):
                 )
         else:
             if data.get("provider", None) in allowed_providers:
+                logger.warning(f"You specified a base_url, we guess you are using a custom provider, so we will set provider to custom.")
                 data["provider"] = "custom"
                 provider = "custom"
 
-        # If api_key is not set, try to get it from environment variables
         if api_key is None and provider in allowed_providers:
-            # First try to get from provider-specific environment variable
-            provider_env_key = f"{provider.upper()}_API_KEY"
-            if provider_env_key in os.environ and os.environ[provider_env_key]:
-                data["api_key"] = SecretStr(os.environ[provider_env_key])
+            if data.get(f"{provider}_api_key") is not None:
+                logger.warning(f"We didn't find api_key in the config, but we found {provider}_api_key in the config, so we will use it.")
+                data["api_key"] = data.get(f"{provider}_api_key")
+            elif os.environ[f"{provider.upper()}_API_KEY"] is not None:
+                logger.warning(f"We didn't find api_key in the config, but we found {provider.upper()}_API_KEY in the environment variables, so we will use it.")
+                data["api_key"] = data.get(f"{provider.upper()}_API_KEY")
             else:
-                # If not found, try to get from common environment variables
-                common_env_keys = [
-                    "XAI_API_KEY",
-                    "OPENAI_API_KEY", 
-                    "ANTHROPIC_API_KEY",
-                    "OLLAMA_API_KEY",
-                    "GEMINI_API_KEY"
-                ]
-                
-                found_key = None
-                for env_key in common_env_keys:
-                    if env_key in os.environ and os.environ[env_key]:
-                        found_key = os.environ[env_key]
-                        break
-                
-                if found_key:
-                    data["api_key"] = SecretStr(found_key)
-                else:
-                    raise ValueError(f"Please set api_key for {provider}. You can set BIOMINER_AI_LLM_API_KEY, {provider_env_key}, or any of the common API keys: {', '.join(common_env_keys)}")
+                raise ValueError(f"Please set api_key for {provider}")
         elif api_key is None:
             raise ValueError("Please set api_key")
         elif api_key is not None and data.get("provider", None) in allowed_providers:
-            # Set the provider-specific environment variable if api_key is provided
-            provider_env_key = f"{provider.upper()}_API_KEY"
-            if isinstance(api_key, SecretStr):
-                os.environ[provider_env_key] = api_key.get_secret_value()
-            else:
-                os.environ[provider_env_key] = str(api_key)
+            os.environ[f"{provider.upper()}_API_KEY"] = api_key
 
         known = set(cls.model_fields.keys())
         data = {k: v for k, v in data.items() if k in known}
