@@ -38,8 +38,13 @@ def test_llmconfig_invalid_env_file(monkeypatch):
         LLMConfig(_env_file=".3env")
 
 
-def test_llmconfig_custom_provider():
-    config = LLMConfig(_env_file=".4env")
+def test_llmconfig_custom_provider(monkeypatch):
+    monkeypatch.setenv("BIOMINER_AI_ENV", ".5env")
+    import importlib
+    import biominer_llm.config
+
+    importlib.reload(biominer_llm.config)
+    config = biominer_llm.config.LLMConfig()
     assert config.provider == "custom"
     assert config.model == "gpt-4o"
     assert config.temperature == 0.8
