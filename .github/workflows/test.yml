@@ -2,9 +2,9 @@ name: test package
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
   pull_request:
-    branches: ["main"]
+    branches: ["**"]
 
 jobs:
   test:
