@@ -8,6 +8,54 @@ cd biominer-llm
 pip install -e .
 ```
 
+## Priority
+
+manual setting
+```
+config = LLMConfig( provider="openai", model="gpt-4o-mini" )
+
+```
+> 
+
+biominer prefix env
+```
+import os
+os.environ["BIOMINER_AI_LLM_PROVIDER"] = "openai"
+os.environ["BIOMINER_AI_LLM_MODEL"] = "gpt-4o-mini"
+
+from biominer_llm import LLMConfig, init_llm
+config = LLMConfig()
+
+```
+>
+
+biominer prefix env config file
+```
+import os
+os.environ["BIOMINER_AI_ENV"] = "BIOMINER_AI_ENV.env.file"
+
+from biominer_llm import LLMConfig, init_llm
+config = LLMConfig()
+
+## >
+
+## default .env file
+from biominer_llm import LLMConfig, init_llm
+config = LLMConfig()
+
+```
+>
+
+provider prefix env
+```
+import os
+os.environ["OPENAI_API_KEY"] = "SK***"
+
+from biominer_llm import LLMConfig, init_llm
+config = LLMConfig()
+
+```
+
 ## usage    
 
 
