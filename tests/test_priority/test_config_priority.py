@@ -37,12 +37,25 @@ def test_llmconfig_env_file():
     assert config.api_key.get_secret_value() == "BIOMINER_AI_LLM_API_KEY"
 
 
-def test_llmconfig_env(monkeypatch):
-    monkeypatch.setenv("OPENAI_API_KEY", "BIOMINER_AI_LLM_API_KEY_dummy")
+def test_llmconfig_biominer_prefix_env(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "OPENAI_API_KEY")
+    monkeypatch.setenv("BIOMINER_AI_LLM_API_KEY", "BIOMINER_AI_LLM_API_KEY_dummy")
     config = LLMConfig(_env_file=".1env")
     assert config.provider == "openai"
     assert config.model == "gpt-4o"
     assert config.temperature == 0.8
     assert config.max_tokens == 4096
     assert config.api_key.get_secret_value() == "BIOMINER_AI_LLM_API_KEY_dummy"
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("BIOMINER_AI_LLM_API_KEY", raising=False)
+
+
+def test_llmconfig_env(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "OPENAI_API_KEY")
+    config = LLMConfig(_env_file=".1env")
+    assert config.provider == "openai"
+    assert config.model == "gpt-4o"
+    assert config.temperature == 0.8
+    assert config.max_tokens == 4096
+    assert config.api_key.get_secret_value() == "OPENAI_API_KEY"
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
