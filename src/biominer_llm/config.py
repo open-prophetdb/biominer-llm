@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 class LLMConfig(BaseSettings):
-    provider: str = "openai"
-    model: str = "gpt-4o"
+    provider: str = None
+    model: str = None
     temperature: Optional[float] = 0.7
     max_tokens: int = 4096
     api_key: Optional[SecretStr] = None
@@ -26,15 +26,19 @@ class LLMConfig(BaseSettings):
     @model_validator(mode="before")
     def adjust_llm_config(cls, data: dict):
         allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
-        provider = data.get("provider", "openai")
+        provider = data.get("provider", None)
         api_key = data.get("api_key", None)
+        data["model"] = data.get("model", "gpt-4o")
         if data.get("base_url", None) is None:
+            if provider is None:
+                provider = "openai"
+                data["provider"] = "openai"
             if provider not in allowed_providers:
                 raise ValueError(
                     f"Unsupported provider: {data.get('provider', None)} or set base_url"
                 )
         else:
-            if provider in allowed_providers or provider is None:
+            if provider is None:
                 logger.info("base_url is set, set provider to custom.")
                 data["provider"] = "custom"
                 provider = "custom"
