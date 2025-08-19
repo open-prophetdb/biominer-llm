@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 import logging
 from langchain_core.messages import BaseMessage
 from .config import LLMConfig
@@ -6,15 +6,15 @@ from .config import LLMConfig
 logger = logging.getLogger(__name__)
 
 
-def init_llm(
-    config: Optional[LLMConfig] = None, extra_config: Optional[Dict[str, Any]] = None
-):
+def init_llm(config: Optional[LLMConfig] = None, **kwargs):
     """
     Initialize a Large Language Model instance based on the specified provider.
 
     Args:
         config: LLMConfig object containing provider, model, temperature, max_tokens, api_key, and base_url.
-        extra_config: Additional configuration parameters specific to the provider.
+
+        .. deprecated:: 0.2.0
+            ``extra_config`` is deprecated and will be removed in a future release. Please pass extra parameters directly as keyword arguments.
 
     Returns:
         An initialized LLM instance from the specified provider.
@@ -27,7 +27,7 @@ def init_llm(
         >>> # Initialize OpenAI GPT-4
         >>> llm = init_llm(config=LLMConfig(provider="openai", model="gpt-4o"))
 
-        >>> # Initialize Anthropic Claude with custom config
+        >>> # Initialize Anthropic Claude with custom config (deprecated usage)
         >>> llm = init_llm(
         ...     config=LLMConfig(
         ...         provider="anthropic",
@@ -35,9 +35,15 @@ def init_llm(
         ...         temperature=0.5,
         ...         max_tokens=4096,
         ...     ),
-        ...     extra_config={"top_p": 0.9}
+        ...     extra_config={"top_p": 0.9}  # Deprecated, pass as top_p=0.9
         ... )
     """
+    if kwargs.get("extra_config", None) is not None:
+        logger.warning(
+            "'extra_config' is deprecated and will be removed in future. Please pass extra parameters directly as keyword arguments."
+        )
+        kwargs = kwargs.get("extra_config")
+
     logger.info(f"Initializing LLM with config: {config}, it's a {type(config)}")
     # Handle both LLMConfig object and string provider
     if config is None:
@@ -63,7 +69,7 @@ def init_llm(
             api_key=api_key,
             base_url=base_url,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "openai":
         from langchain_openai import ChatOpenAI
@@ -74,7 +80,7 @@ def init_llm(
             max_completion_tokens=max_tokens,
             api_key=api_key,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
@@ -85,7 +91,7 @@ def init_llm(
             max_tokens_to_sample=max_tokens,
             api_key=api_key,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "ollama":
         from langchain_ollama import ChatOllama
@@ -95,7 +101,7 @@ def init_llm(
             temperature=temperature,
             api_key=api_key,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "xai":
         from langchain_xai import ChatXAI
@@ -106,7 +112,7 @@ def init_llm(
             max_tokens=max_tokens,
             api_key=api_key,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
@@ -117,7 +123,7 @@ def init_llm(
             max_tokens=max_tokens,
             api_key=api_key,
             verbose=True,
-            **(extra_config or {}),
+            **kwargs,
         )
     elif provider == "deepseek":
         from langchain_deepseek import ChatDeepSeek
@@ -127,7 +133,7 @@ def init_llm(
             temperature=temperature,
             max_tokens=max_tokens,
             api_key=api_key,
-            **(extra_config or {}),
+            **kwargs,
         )
     else:
         raise ValueError(f"Please set a supported provider: {provider} or set base_url")
