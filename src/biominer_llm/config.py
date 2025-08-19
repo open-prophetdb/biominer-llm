@@ -25,7 +25,14 @@ class LLMConfig(BaseSettings):
 
     @model_validator(mode="before")
     def adjust_llm_config(cls, data: dict):
-        allowed_providers = ["openai", "anthropic", "ollama", "xai", "gemini"]
+        allowed_providers = [
+            "openai",
+            "anthropic",
+            "ollama",
+            "xai",
+            "gemini",
+            "deepseek",
+        ]
         provider = data.get("provider", None)
         api_key = data.get("api_key", None)
         data["model"] = data.get("model", "gpt-4o")

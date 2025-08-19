@@ -119,6 +119,16 @@ def init_llm(
             verbose=True,
             **(extra_config or {}),
         )
+    elif provider == "deepseek":
+        from langchain_deepseek import ChatDeepSeek
+
+        llm = ChatDeepSeek(
+            model=llm_model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            api_key=api_key,
+            **(extra_config or {}),
+        )
     else:
         raise ValueError(f"Please set a supported provider: {provider} or set base_url")
 
