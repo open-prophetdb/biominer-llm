@@ -8,6 +8,17 @@ cd biominer-llm
 pip install -e .
 ```
 
+## supported providers:
+- openai
+- anthropic
+- ollama
+- xai
+- gemini
+- deepseek
+- groq
+
+Additionally, if you’re using a provider that’s not listed above, you can set a custom base_url instead.
+
 ## Priority
 
 manual setting
@@ -53,6 +64,7 @@ os.environ["OPENAI_API_KEY"] = "SK***"
 
 from biominer_llm import LLMConfig, init_llm
 config = LLMConfig()
+
 
 ```
 
