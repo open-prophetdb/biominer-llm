@@ -135,6 +135,16 @@ def init_llm(config: Optional[LLMConfig] = None, **kwargs):
             api_key=api_key,
             **kwargs,
         )
+    elif provider == "groq":
+        from langchain_groq import ChatGroq
+
+        llm = ChatGroq(
+            model=llm_model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            api_key=api_key,
+            **kwargs,
+        )
     else:
         raise ValueError(f"Please set a supported provider: {provider} or set base_url")
 

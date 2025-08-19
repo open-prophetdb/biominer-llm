@@ -13,6 +13,7 @@ dependencies = [
     "langchain-openai>=0.0.10",
     "langchain-anthropic>=0.0.10",
     "langchain-deepseek",
+    "langchain-groq",
     "langchain-ollama>=0.0.10",
     "langchain-xai>=0.0.10",
     "langchain-google-genai>=0.0.10",

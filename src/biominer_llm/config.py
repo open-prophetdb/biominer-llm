@@ -32,6 +32,7 @@ class LLMConfig(BaseSettings):
             "xai",
             "gemini",
             "deepseek",
+            "groq",
         ]
         provider = data.get("provider", None)
         api_key = data.get("api_key", None)
